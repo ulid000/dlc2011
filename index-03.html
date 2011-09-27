@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>demo 03</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			// socket.io
+			var socket;
+			// tracking device orientation
+			var alpha = 0, beta = 0, gamma = 0;
+			var tracker = false;
+			var sendOrientationInterval;
+			// canvas
+			var ctx;
+			var x = 0;
+			var maxx = 300;
+
+			function init() {
+				ctx = document.getElementById('canvas').getContext("2d");
+				connect();
+			}
+
+			// socket.io
+
+			function connect() {
+				socket = io.connect();
+				socket.on('connect', function() {showMessage('connected')
+				});
+				socket.on('textMessage', function(message) {showMessage(message)
+				});
+				socket.on('backgroundColorEvent', function(message) {setBackgroundColor(message)
+				});
+				socket.on('addColorEvent', function(message) {addColor(message)
+				});
+				socket.on('disconnect', function() {showMessage('disconnected')
+				});
+			}
+
+			function disconnect() {
+				socket.disconnect();
+			}
+
+			// callback handler for events
+
+			function showMessage(message) {
+				document.getElementById('messageReceived').innerHTML = message;
+			}
+
+			function setBackgroundColor(color) {
+				document.bgColor = color;
+			}
+
+			function addColor(color) {
+				// do not draw colors in canvas while tracking device orientation on the device
+				if(tracker) {
+					return;
+				}
+				ctx.globalAlpha = 1.0;
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = color;
+				ctx.beginPath();
+				ctx.moveTo(x, 0);
+				ctx.lineTo(x, 300);
+				ctx.stroke();
+				if(x < maxx) {
+					x++;
+				} else {
+					x = 0;
+				}
+			}
+			
+			// tracking device orientation
+
+			function sendOrientation() {
+				socket.emit('orientation', alpha, beta, gamma);
+			}
+
+			window.addEventListener('deviceorientation', function(e) {
+				alpha = e.alpha;
+				beta = e.beta;
+				gamma = e.gamma;
+			}, false);
+			function startOrientationTracking() {
+				tracker = true;
+				sendOrientationInterval = window.setInterval(sendOrientation, 40);
+			}
+
+			function stopOrientationTracking() {
+				tracker = false;
+				window.clearInterval(sendOrientationInterval);
+			}
+		</script>
+	</head>
+	<body onLoad="init()">
+		<h1>Node.js + Socket.IO Demo 3</h1>
+		Message received: <span id="messageReceived"></span>
+		<form onSubmit="socket.emit('textMessage', document.getElementById('messageToSend').value); document.getElementById('messageToSend').value=''; return false;">
+			Message to send:
+			<input id="messageToSend" type="text">
+			<input type="submit" value="Send Text">
+		</form>
+		<form onSubmit="startOrientationTracking(); return false;">
+			<input type="submit" value="Start Tracking">
+		</form>
+		<form onSubmit="stopOrientationTracking(); return false;">
+			<input type="submit" value="Stop Tracking">
+		</form>
+		<form onSubmit="disconnect(); return false;">
+			<input type="submit" value="Disconnect">
+		</form>
+		<canvas id="canvas" width="300" height="300"></canvas>
+	</body>
+</html>

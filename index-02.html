@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>demo 02</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			// socket.io
+			var socket;
+
+			function init() {
+				connect();
+			}
+
+			// socket.io
+
+			function connect() {
+				socket = io.connect();
+				socket.on('connect', function() {showMessage('connected')
+				});
+				socket.on('textMessage', function(message) {showMessage(message)
+				});
+				socket.on('backgroundColorEvent', function(message) {setBackgroundColor(message)
+				});
+				socket.on('disconnect', function() {showMessage('disconnected')
+				});
+			}
+
+			function disconnect() {
+				socket.disconnect();
+			}
+
+			// callback handler for events
+
+			function showMessage(message) {
+				document.getElementById('messageReceived').innerHTML = message;
+			}
+
+			function setBackgroundColor(color) {
+				document.bgColor = color;
+			}
+
+		</script>
+	</head>
+	<body onLoad="init()">
+		<h1>Node.js + Socket.IO Demo 2</h1>
+		Message received: <span id="messageReceived"></span>
+		<form onSubmit="socket.emit('textMessage', document.getElementById('messageToSend').value); document.getElementById('messageToSend').value=''; return false;">
+			Message to send:
+			<input id="messageToSend" type="text">
+			<input type="submit" value="Send Text">
+		</form>
+		<form onSubmit="disconnect(); return false;">
+			<input type="submit" value="Disconnect">
+		</form>
+	</body>
+</html>
