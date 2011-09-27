@@ -1,1 +1,9 @@
-Code samples used in session on DLC 2011.
+Code samples for node.js as used in session at DLC 2011.
+
+To experiment with the samples please create an account for Cloud9IDE at http://c9.io and clone a project from the master or a appropriate branch. 
+
+In Cloud9IDE you have to add the node module socket.io which is required by the server samples by typing
+
+npm install socket.io
+
+to the command line.
