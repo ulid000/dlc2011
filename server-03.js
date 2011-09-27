@@ -24,7 +24,12 @@ io.sockets.on('connection', function(socket) {
 			socket.broadcast.emit('textMessage', message);
 		}
 	});
-	socket.on('orientation', function(a, b, c) {sendColor(socket, calculateColor(a, b, c));
+    socket.on('orientation', function(a, b, c) {sendColor(socket, calculateColor(a, b, c));
+	});
+    socket.on('orientation', function(a, b, c) {sendColorValue(socket, calculateColor(a, b, c));
+	});
+    socket.on('stopTrackingAll', function() {
+        socket.broadcast.emit('stopOrientationTracking');
 	});
 	socket.on('disconnect', function() {
 	});
@@ -48,6 +53,12 @@ function sendColor(socket, color) {
 	socket.emit('addColorEvent', color);
 	socket.broadcast.emit('addColorEvent', color);
 }
+
+function sendColorValue(socket, colorValue) {
+    socket.emit('addColorValueEvent', colorValue);
+	socket.broadcast.emit('addColorValueEvent', colorValue);
+}
+
 
 //This method loads files into the response from the file system depending on the uri.
 function load_static_file(uri, response) {

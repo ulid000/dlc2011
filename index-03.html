@@ -34,7 +34,11 @@
 				});
 				socket.on('addColorEvent', function(message) {addColor(message)
 				});
-				socket.on('disconnect', function() {showMessage('disconnected')
+    			socket.on('disconnect', function() {showMessage('disconnected')
+				});
+                socket.on('stopOrientationTracking', function() {stopOrientationTracking()
+                });
+    			socket.on('addColorValueEvent', function(message) {addColorValue(message)
 				});
 			}
 
@@ -70,7 +74,16 @@
 					x = 0;
 				}
 			}
-			
+
+    		function addColorValue(colorValue) {
+				// do not draw colors in canvas while tracking device orientation on the device
+				if(tracker) {
+					return;
+				}
+    			document.getElementById('colorValue').innerHTML = colorValue;
+			}
+
+
 			// tracking device orientation
 
 			function sendOrientation() {
@@ -91,11 +104,16 @@
 				tracker = false;
 				window.clearInterval(sendOrientationInterval);
 			}
+            
+            function stopOrientationTrackingAll() {
+                socket.emit('stopTrackingAll')
+            }
 		</script>
 	</head>
 	<body onLoad="init()">
 		<h1>Node.js + Socket.IO Demo 3</h1>
-		Message received: <span id="messageReceived"></span>
+		<p>Message received: <span id="messageReceived"></span></p>
+    	<p>Color: <span id="colorValue"></span></p>
 		<form onSubmit="socket.emit('textMessage', document.getElementById('messageToSend').value); document.getElementById('messageToSend').value=''; return false;">
 			Message to send:
 			<input id="messageToSend" type="text">
@@ -106,6 +124,9 @@
 		</form>
 		<form onSubmit="stopOrientationTracking(); return false;">
 			<input type="submit" value="Stop Tracking">
+		</form>
+    	<form onSubmit="stopOrientationTrackingAll(); return false;">
+			<input type="submit" value="Stop Tracking All">
 		</form>
 		<form onSubmit="disconnect(); return false;">
 			<input type="submit" value="Disconnect">
