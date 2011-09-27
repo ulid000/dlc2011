@@ -32,7 +32,7 @@
 			// callback handler for events
 
 			function showMessage(message) {
-				document.getElementById('messageReceived').innerHTML = message;
+				document.getElementById('messages').innerHTML = document.getElementById('messages').innerHTML + '<p><span class"date">' + Date.strftime('dd.mm.YYYY HH:SS') + '</span> ' + message + '</p>';
 			}
 
 
@@ -40,8 +40,7 @@
 	</head>
 	<body onLoad="init()">
 		<h1>Node.js + Socket.IO Demo 1</h1>
-		Message received: <span id="messageReceived"></span>
-		<form onSubmit="socket.emit('textMessage', document.getElementById('messageToSend').value); document.getElementById('messageToSend').value=''; return false;">
+    		<form onSubmit="socket.emit('textMessage', document.getElementById('messageToSend').value); document.getElementById('messageToSend').value=''; return false;">
 			Message to send:
 			<input id="messageToSend" type="text">
 			<input type="submit" value="Send Text">
@@ -49,5 +48,6 @@
 		<form onSubmit="disconnect(); return false;">
 			<input type="submit" value="Disconnect">
 		</form>
+		<div id="messages"></div>
 	</body>
 </html>
